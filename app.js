@@ -280,40 +280,49 @@ function addCircle() {
 }
 
 // --------------------
-// Background handling
+// Background handling (FIXED: FileReader for reliable Netlify rendering)
 // --------------------
 let currentBgFit = "cover";
+
+function fitBackgroundImage(bg) {
+  if (!bg) return;
+
+  const cw = canvas.getWidth(), ch = canvas.getHeight();
+
+  const scaleCover = Math.max(cw / bg.width, ch / bg.height);
+  const scaleContain = Math.min(cw / bg.width, ch / bg.height);
+  const scale = (currentBgFit === "contain") ? scaleContain : scaleCover;
+
+  bg.scale(scale);
+
+  const scaledW = bg.width * scale;
+  const scaledH = bg.height * scale;
+
+  bg.set({
+    left: (cw - scaledW) / 2,
+    top: (ch - scaledH) / 2,
+    originX: "left",
+    originY: "top"
+  });
+}
 
 function setBackgroundFromFile(file) {
   if (!file) return;
 
-  const url = URL.createObjectURL(file);
-  fabric.Image.fromURL(url, (img) => {
-    const cw = canvas.getWidth(), ch = canvas.getHeight();
+  const reader = new FileReader();
+  reader.onload = () => {
+    fabric.Image.fromURL(reader.result, (img) => {
+      fitBackgroundImage(img);
 
-    const scaleCover = Math.max(cw / img.width, ch / img.height);
-    const scaleContain = Math.min(cw / img.width, ch / img.height);
-    const scale = (currentBgFit === "contain") ? scaleContain : scaleCover;
-
-    img.scale(scale);
-
-    const scaledW = img.width * scale;
-    const scaledH = img.height * scale;
-    img.set({
-      left: (cw - scaledW) / 2,
-      top: (ch - scaledH) / 2,
-      originX: "left",
-      originY: "top"
+      canvas.setBackgroundImage(img, () => {
+        canvas.requestRenderAll();
+        if (guideGroup) guideGroup.bringToFront();
+        pushHistory();
+      });
     });
+  };
 
-    canvas.setBackgroundImage(img, () => {
-      canvas.requestRenderAll();
-      if (guideGroup) guideGroup.bringToFront();
-      pushHistory();
-    }, { crossOrigin: "anonymous" });
-
-    URL.revokeObjectURL(url);
-  }, { crossOrigin: "anonymous" });
+  reader.readAsDataURL(file);
 }
 
 function clearBackground() {
@@ -327,26 +336,27 @@ function clearBackground() {
 function addImageFromFile(file) {
   if (!file) return;
 
-  const url = URL.createObjectURL(file);
-  fabric.Image.fromURL(url, (img) => {
-    const maxW = canvas.getWidth() * 0.6;
-    const maxH = canvas.getHeight() * 0.6;
-    const scale = Math.min(maxW / img.width, maxH / img.height, 1);
+  const reader = new FileReader();
+  reader.onload = () => {
+    fabric.Image.fromURL(reader.result, (img) => {
+      const maxW = canvas.getWidth() * 0.6;
+      const maxH = canvas.getHeight() * 0.6;
+      const scale = Math.min(maxW / img.width, maxH / img.height, 1);
 
-    img.scale(scale);
-    img.set({
-      left: canvas.getWidth()/2,
-      top: canvas.getHeight()/2,
-      originX: "center",
-      originY: "center"
+      img.scale(scale);
+      img.set({
+        left: canvas.getWidth()/2,
+        top: canvas.getHeight()/2,
+        originX: "center",
+        originY: "center"
+      });
+
+      canvas.add(img);
+      canvas.setActiveObject(img);
+      canvas.requestRenderAll();
     });
-
-    canvas.add(img);
-    canvas.setActiveObject(img);
-    canvas.requestRenderAll();
-
-    URL.revokeObjectURL(url);
-  }, { crossOrigin: "anonymous" });
+  };
+  reader.readAsDataURL(file);
 }
 
 // --------------------
@@ -436,10 +446,17 @@ $("btnItalic").addEventListener("click", () => {
 });
 
 // --------------------
-// Background controls
+// Background controls (with LIVE re-fit)
 // --------------------
 $("bgFit").addEventListener("change", (e) => {
   currentBgFit = e.target.value;
+
+  const bg = canvas.backgroundImage;
+  if (!bg) return;
+
+  fitBackgroundImage(bg);
+  canvas.requestRenderAll();
+  pushHistory();
 });
 
 $("bgUpload").addEventListener("change", (e) => {
