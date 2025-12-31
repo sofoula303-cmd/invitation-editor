@@ -3,23 +3,25 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Wedding Invitation Editor</title>
+  <title>Invitation Editor (Blank + Animations + Fonts)</title>
 
-  <!-- Fabric.js (canvas editor library) -->
+  <!-- Fabric.js -->
   <script src="https://cdn.jsdelivr.net/npm/fabric@5.3.0/dist/fabric.min.js"></script>
-
   <link rel="stylesheet" href="./styles.css" />
 </head>
+
 <body>
   <header class="topbar">
-    <div class="brand">Invitation Studio</div>
+    <div class="brand">Invitation Editor</div>
     <div class="actions">
+      <button id="btnPlay" class="ghost">Play</button>
       <button id="btnExport" class="primary">Export PNG</button>
     </div>
   </header>
 
   <main class="layout">
     <aside class="panel">
+
       <section class="card">
         <h3>Canvas</h3>
         <label class="row">
@@ -27,42 +29,65 @@
           <select id="canvasSize">
             <option value="5x7">5×7 in (Portrait)</option>
             <option value="a5">A5 (Portrait)</option>
+            <option value="a4">A4 (Portrait)</option>
           </select>
         </label>
-        <button id="btnReset" class="ghost">Reset Template</button>
-      </section>
-
-      <section class="card">
-        <h3>Background</h3>
-        <input id="bgUpload" type="file" accept="image/*" />
-        <button id="btnClearBg" class="ghost">Remove Background</button>
+        <label class="row">
+          Show safe margins
+          <input id="toggleGuides" type="checkbox" checked />
+        </label>
+        <button id="btnClear" class="danger">Clear Canvas</button>
       </section>
 
       <section class="card">
         <h3>Add</h3>
         <button id="btnAddText">Add Text</button>
-        <button id="btnAddLine" class="ghost">Add Divider Line</button>
+        <button id="btnAddRect" class="ghost">Add Rectangle</button>
+        <button id="btnAddCircle" class="ghost">Add Circle</button>
+        <label class="row" style="justify-content:flex-start; gap:12px;">
+          <span style="min-width:86px; color: var(--muted); font-size:12px;">Add image</span>
+          <input id="imgUpload" type="file" accept="image/*" />
+        </label>
       </section>
 
       <section class="card">
-        <h3>Selected Object</h3>
+        <h3>Background</h3>
+        <input id="bgUpload" type="file" accept="image/*" />
+        <label class="row">
+          Background fit
+          <select id="bgFit">
+            <option value="cover">Cover</option>
+            <option value="contain">Contain</option>
+          </select>
+        </label>
+        <button id="btnClearBg" class="ghost">Remove Background</button>
+      </section>
+
+      <section class="card">
+        <h3>Text styling (selected)</h3>
 
         <label class="row">
           Font
-          <select id="fontFamily">
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Garamond">Garamond</option>
-            <option value="Arial">Arial</option>
-            <option value="Courier New">Courier New</option>
-          </select>
+          <select id="fontFamily"></select>
         </label>
+
+        <div class="row" style="gap:10px;">
+          <input id="googleFontName" placeholder="Google Font name (e.g. Great Vibes)"
+                 style="flex:1; padding:8px 10px; border-radius:12px; border:1px solid var(--border); background:#0f1017; color:var(--text);" />
+          <button id="btnLoadGoogleFont" class="ghost">Load</button>
+        </div>
+
+        <div class="row" style="gap:10px; align-items:center;">
+          <input id="fontUpload" type="file" accept=".ttf,.otf,.woff,.woff2" />
+          <input id="fontUploadName" placeholder="Name (optional)"
+                 style="flex:1; padding:8px 10px; border-radius:12px; border:1px solid var(--border); background:#0f1017; color:var(--text);" />
+          <button id="btnAddUploadedFont" class="ghost">Add</button>
+        </div>
 
         <label class="row">
           Size
-          <input id="fontSize" type="number" min="8" max="200" value="32" />
+          <input id="fontSize" type="number" min="8" max="240" value="32" />
         </label>
-
         <label class="row">
           Color
           <input id="fillColor" type="color" value="#111111" />
@@ -75,18 +100,53 @@
         </div>
 
         <p class="hint">
-          Tip: click an object, then use the controls. Double-click text to edit.
+          Tip: Click “Add Text” and start typing. Double-click text to edit again.
+          Google Fonts load by name. Uploaded fonts work instantly (you’ll re-upload after refresh unless you add font files to the repo).
         </p>
       </section>
 
       <section class="card">
-        <h3>Keyboard</h3>
+        <h3>Animation (selected)</h3>
+        <label class="row">
+          Effect
+          <select id="animType">
+            <option value="none">None</option>
+            <option value="float">Float (up/down)</option>
+            <option value="pulse">Pulse (scale)</option>
+            <option value="rotate">Rotate</option>
+            <option value="fade">Fade in/out</option>
+          </select>
+        </label>
+
+        <label class="row">
+          Speed
+          <input id="animSpeed" type="range" min="0.2" max="4" step="0.1" value="1.2" />
+        </label>
+
+        <label class="row">
+          Intensity
+          <input id="animIntensity" type="range" min="0" max="60" step="1" value="18" />
+        </label>
+
+        <div class="row">
+          <button id="btnApplyAnim">Apply</button>
+          <button id="btnRemoveAnim" class="ghost">Remove</button>
+        </div>
+
+        <p class="hint">
+          Play/Stop previews animations. PNG export is a still image.
+        </p>
+      </section>
+
+      <section class="card">
+        <h3>Shortcuts</h3>
         <ul class="hintlist">
-          <li><b>Delete / Backspace</b>: remove selected</li>
+          <li><b>Delete/Backspace</b>: remove selected</li>
           <li><b>Ctrl/Cmd + C/V</b>: copy/paste</li>
           <li><b>Ctrl/Cmd + Z</b>: undo</li>
         </ul>
       </section>
+
     </aside>
 
     <section class="stage">
