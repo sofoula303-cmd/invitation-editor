@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wedding Invitation Editor</title>
+
+  <!-- Fabric.js (canvas editor library) -->
+  <script src="https://cdn.jsdelivr.net/npm/fabric@5.3.0/dist/fabric.min.js"></script>
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Invitation Studio</div>
+    <div class="actions">
+      <button id="btnExport" class="primary">Export PNG</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="panel">
+      <section class="card">
+        <h3>Canvas</h3>
+        <label class="row">
+          Size
+          <select id="canvasSize">
+            <option value="5x7">5×7 in (Portrait)</option>
+            <option value="a5">A5 (Portrait)</option>
+          </select>
+        </label>
+        <button id="btnReset" class="ghost">Reset Template</button>
+      </section>
+
+      <section class="card">
+        <h3>Background</h3>
+        <input id="bgUpload" type="file" accept="image/*" />
+        <button id="btnClearBg" class="ghost">Remove Background</button>
+      </section>
+
+      <section class="card">
+        <h3>Add</h3>
+        <button id="btnAddText">Add Text</button>
+        <button id="btnAddLine" class="ghost">Add Divider Line</button>
+      </section>
+
+      <section class="card">
+        <h3>Selected Object</h3>
+
+        <label class="row">
+          Font
+          <select id="fontFamily">
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Garamond">Garamond</option>
+            <option value="Arial">Arial</option>
+            <option value="Courier New">Courier New</option>
+          </select>
+        </label>
+
+        <label class="row">
+          Size
+          <input id="fontSize" type="number" min="8" max="200" value="32" />
+        </label>
+
+        <label class="row">
+          Color
+          <input id="fillColor" type="color" value="#111111" />
+        </label>
+
+        <div class="row">
+          <button id="btnBold" class="ghost">Bold</button>
+          <button id="btnItalic" class="ghost">Italic</button>
+          <button id="btnDelete" class="danger">Delete</button>
+        </div>
+
+        <p class="hint">
+          Tip: click an object, then use the controls. Double-click text to edit.
+        </p>
+      </section>
+
+      <section class="card">
+        <h3>Keyboard</h3>
+        <ul class="hintlist">
+          <li><b>Delete / Backspace</b>: remove selected</li>
+          <li><b>Ctrl/Cmd + C/V</b>: copy/paste</li>
+          <li><b>Ctrl/Cmd + Z</b>: undo</li>
+        </ul>
+      </section>
+    </aside>
+
+    <section class="stage">
+      <div class="canvasWrap">
+        <canvas id="c"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>
